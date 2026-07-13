@@ -16,3 +16,6 @@ Thumbs.db
 *.db-shm
 .zaocode/
 /share/
+
+# 私有上传，不发布
+.daymug-uploads/
