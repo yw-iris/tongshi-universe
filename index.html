@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>通识宇宙 · 小朋友的星球探险</title>
+  <meta name="description" content="给小朋友的通识教育探险：自然、历史、社会、人文四颗星球，穿过隧道去探索。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <!-- 星空背景 -->
+  <canvas id="starfield"></canvas>
+
+  <!-- 顶部栏 -->
+  <header class="topbar">
+    <div class="brand" data-go-home>
+      <span class="brand-mark">🪐</span>
+      <span class="brand-name">通识宇宙</span>
+    </div>
+    <div class="progress-pill">
+      <span id="progressText">0 / 4 星球点亮</span>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </header>
+
+  <!-- ========== 首页：星图 ========== -->
+  <main id="view-home" class="view is-active">
+    <section class="hero">
+      <p class="hero-kicker">✦ 小小探险家，欢迎登船 ✦</p>
+      <h1 class="hero-title">出发！点亮属于你的<br /><em>通识宇宙</em></h1>
+      <p class="hero-sub">穿过闪光的时空隧道，降落到每一颗知识星球，认识自然、历史、社会和人文。</p>
+    </section>
+
+    <section class="galaxy" id="galaxy" aria-label="星球地图"></section>
+
+    <p class="hint" id="homeHint">点击一颗亮着的星球开始探险 · 完成后会解锁下一颗</p>
+  </main>
+
+  <!-- ========== 星球详情 ========== -->
+  <main id="view-planet" class="view">
+    <button class="back-btn" data-go-home>← 返回星图</button>
+    <section class="planet-head">
+      <div class="planet-badge" id="planetBadge">🌿</div>
+      <div>
+        <p class="planet-tag" id="planetTag">大自然的秘密</p>
+        <h2 class="planet-name" id="planetName">自然星球</h2>
+        <p class="planet-intro" id="planetIntro"></p>
+      </div>
+    </section>
+
+    <h3 class="section-label">🛰 知识站 · 逐个点开阅读</h3>
+    <section class="stations" id="stations"></section>
+
+    <section class="quiz-launch" id="quizLaunch">
+      <div class="quiz-launch-text">
+        <h3>🏁 星球闯关</h3>
+        <p id="quizLaunchHint">先读完全部知识站，就能来闯关点亮这颗星球！</p>
+      </div>
+      <button class="btn-primary" id="startQuizBtn" disabled>开始闯关</button>
+    </section>
+  </main>
+
+  <!-- ========== 知识卡弹层 ========== -->
+  <div class="modal-mask" id="stationModal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <button class="modal-close" id="stationClose" aria-label="关闭">×</button>
+      <div class="modal-emoji" id="mEmoji">🦁</div>
+      <h3 class="modal-title" id="mTitle">动物王国</h3>
+      <ul class="know-list" id="mPoints"></ul>
+      <div class="modal-foot">
+        <a class="cadal-link" id="mCadal" target="_blank" rel="noopener">📚 <span id="mCadalText">到图书馆看更多</span></a>
+        <button class="btn-primary" id="mDone">我读懂啦 ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 闯关弹层 ========== -->
+  <div class="modal-mask" id="quizModal" hidden>
+    <div class="modal-card quiz-card" role="dialog" aria-modal="true">
+      <button class="modal-close" id="quizClose" aria-label="关闭">×</button>
+      <div id="quizBody"></div>
+    </div>
+  </div>
+
+  <!-- ========== 隧道穿越 ========== -->
+  <div class="tunnel-layer" id="tunnelLayer" hidden>
+    <canvas id="tunnelCanvas"></canvas>
+    <div class="tunnel-caption">
+      <p class="tunnel-title" id="tunnelTitle">前往 自然星球</p>
+      <p class="tunnel-sub">穿越时空隧道中…</p>
+      <button class="skip-btn" id="skipTunnel">跳过 →</button>
+    </div>
+  </div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/starfield.js"></script>
+  <script src="assets/js/tunnel.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
