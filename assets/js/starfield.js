@@ -1,4 +1,4 @@
-/* 《小王子》风格星空 — 暖金/琥珀/淡紫星点 + 首页椭圆轨道弧线 */
+/* 《小王子》风格星空 — 暖金色 / 琥珀 / 淡紫 星点，深宇宙蓝底 */
 (function () {
   const canvas = document.getElementById("starfield");
   const ctx = canvas.getContext("2d");
@@ -39,42 +39,9 @@
     }
   }
 
-  /* ── 首页椭圆轨道弧线（参考 TheGleamArts + Cosmic Origins 轨道圈） ── */
-  function drawOrbitArcs() {
-    const isHome = document.getElementById("view-home").classList.contains("is-active");
-    if (!isHome) return;
-
-    ctx.save();
-
-    /* 主轨道：大虚线椭圆，覆盖整个星球展示区域 */
-    const arcCx = w * 0.50;
-    const arcCy = h * 0.60;
-    const arcRx = w * 0.50;
-    const arcRy = h * 0.32;
-
-    ctx.setLineDash([10 * (w / 1920 || 1), 18 * (w / 1920 || 1)]);
-    ctx.lineWidth = 1.2;
-    ctx.strokeStyle = "rgba(215,200,148,0.20)";
-    ctx.beginPath();
-    ctx.ellipse(arcCx, arcCy, arcRx, arcRy, -0.06, 0, Math.PI * 2);
-    ctx.stroke();
-
-    /* 内圈（次轨道，参考 TheGleamArts 多圈设计） */
-    ctx.setLineDash([6, 22]);
-    ctx.lineWidth = 0.8;
-    ctx.strokeStyle = "rgba(200,185,130,0.12)";
-    ctx.beginPath();
-    ctx.ellipse(arcCx, arcCy, arcRx * 0.68, arcRy * 0.68, -0.04, 0, Math.PI * 2);
-    ctx.stroke();
-
-    ctx.setLineDash([]);
-    ctx.restore();
-  }
-
   function tick() {
     ctx.clearRect(0, 0, w, h);
 
-    /* 星云光晕 */
     for (const n of nebulae) {
       n.a += n.tw;
       const alpha = 0.08 + Math.abs(Math.sin(n.a)) * 0.18;
@@ -85,7 +52,6 @@
       ctx.arc(n.x, n.y, n.r * 28, 0, Math.PI * 2); ctx.fill();
     }
 
-    /* 星点 */
     for (const s of stars) {
       s.a += s.tw;
       const alpha = 0.3 + Math.abs(Math.sin(s.a)) * 0.65;
@@ -111,10 +77,6 @@
         ctx.arc(s.x, s.y, s.r * 4.5, 0, Math.PI * 2); ctx.fill();
       }
     }
-
-    /* 首页轨道弧线叠加在星点之上 */
-    drawOrbitArcs();
-
     requestAnimationFrame(tick);
   }
 

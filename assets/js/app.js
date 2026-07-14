@@ -34,10 +34,9 @@
   const wrap  = document.getElementById("galaxyWrap");
   let isDragging = false, dragStartX = 0, scrollStart = 0, didDrag = false;
 
-  /* 尺寸错落参考 Cosmic Origins：第 2 颗最大，其余渐小，营造 3D 纵深感 */
-  const ORB_SIZES  = [148, 160, 116, 136];
-  const BOB_DELAYS = ["0s", ".9s", "1.7s", "2.5s"];
-  const RING_ROTS  = ["-14deg", "-22deg", "-17deg", "-26deg"];
+  const ORB_SIZES  = [110, 140, 140, 110];
+  const BOB_DELAYS = ["0s", ".8s", "1.6s", "2.4s"];
+  const RING_ROTS  = ["-15deg", "-22deg", "-18deg", "-25deg"];
 
   function renderGalaxy() {
     track.innerHTML = "";
