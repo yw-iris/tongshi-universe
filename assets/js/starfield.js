@@ -1,4 +1,4 @@
-/* 《小王子》风格星空 — 暖金色 / 琥珀 / 淡紫 星点，深宇宙蓝底 */
+/* 《小王子》风格星空 — 暖金/琥珀/淡紫星点 + 首页椭圆轨道弧线 */
 (function () {
   const canvas = document.getElementById("starfield");
   const ctx = canvas.getContext("2d");
@@ -15,7 +15,7 @@
     stars = [];
     const count = Math.min(280, Math.floor(window.innerWidth * window.innerHeight / 5000));
     for (let i = 0; i < count; i++) {
-      const hue = [45, 38, 280, 200, 50][Math.floor(Math.random() * 5)]; // amber, gold, purple, blue-white, yellow
+      const hue = [45, 38, 280, 200, 50][Math.floor(Math.random() * 5)];
       stars.push({
         x: Math.random() * w, y: Math.random() * h,
         r: (Math.random() * 1.6 + 0.2) * dpr,
@@ -28,7 +28,6 @@
       });
     }
 
-    // 大星点（像小王子里的闪耀星）
     nebulae = [];
     for (let i = 0; i < 6; i++) {
       nebulae.push({
@@ -40,10 +39,42 @@
     }
   }
 
+  /* ── 首页椭圆轨道弧线（参考 TheGleamArts + Cosmic Origins 轨道圈） ── */
+  function drawOrbitArcs() {
+    const isHome = document.getElementById("view-home").classList.contains("is-active");
+    if (!isHome) return;
+
+    ctx.save();
+
+    /* 主轨道：大虚线椭圆，覆盖整个星球展示区域 */
+    const arcCx = w * 0.50;
+    const arcCy = h * 0.60;
+    const arcRx = w * 0.50;
+    const arcRy = h * 0.32;
+
+    ctx.setLineDash([10 * (w / 1920 || 1), 18 * (w / 1920 || 1)]);
+    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = "rgba(215,200,148,0.20)";
+    ctx.beginPath();
+    ctx.ellipse(arcCx, arcCy, arcRx, arcRy, -0.06, 0, Math.PI * 2);
+    ctx.stroke();
+
+    /* 内圈（次轨道，参考 TheGleamArts 多圈设计） */
+    ctx.setLineDash([6, 22]);
+    ctx.lineWidth = 0.8;
+    ctx.strokeStyle = "rgba(200,185,130,0.12)";
+    ctx.beginPath();
+    ctx.ellipse(arcCx, arcCy, arcRx * 0.68, arcRy * 0.68, -0.04, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
   function tick() {
     ctx.clearRect(0, 0, w, h);
 
-    // 星云光晕
+    /* 星云光晕 */
     for (const n of nebulae) {
       n.a += n.tw;
       const alpha = 0.08 + Math.abs(Math.sin(n.a)) * 0.18;
@@ -54,6 +85,7 @@
       ctx.arc(n.x, n.y, n.r * 28, 0, Math.PI * 2); ctx.fill();
     }
 
+    /* 星点 */
     for (const s of stars) {
       s.a += s.tw;
       const alpha = 0.3 + Math.abs(Math.sin(s.a)) * 0.65;
@@ -61,7 +93,6 @@
       if (s.x < 0) s.x = w; if (s.x > w) s.x = 0;
       if (s.y < 0) s.y = h; if (s.y > h) s.y = 0;
 
-      // 大星点画十字光芒
       if (s.r > 1.8 * s.dpr) {
         ctx.strokeStyle = `hsla(${s.hue},${s.sat}%,${s.bright}%,${alpha * 0.6})`;
         ctx.lineWidth = 0.8 * s.dpr;
@@ -74,13 +105,16 @@
       ctx.fillStyle = `hsla(${s.hue},${s.sat}%,${s.bright}%,${alpha})`;
       ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
 
-      // 外晕
       if (s.r > 1.2 * s.dpr) {
         ctx.beginPath();
         ctx.fillStyle = `hsla(${s.hue},${s.sat}%,${s.bright}%,${alpha * 0.12})`;
         ctx.arc(s.x, s.y, s.r * 4.5, 0, Math.PI * 2); ctx.fill();
       }
     }
+
+    /* 首页轨道弧线叠加在星点之上 */
+    drawOrbitArcs();
+
     requestAnimationFrame(tick);
   }
 

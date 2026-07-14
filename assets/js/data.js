@@ -10,9 +10,10 @@ const PLANETS = [
     name: "自然星球",
     tag: "大自然的秘密",
     emoji: "🌿",
-    color: "#3ddc97",
-    color2: "#1f8a5b",
-    glow: "rgba(61,220,151,.55)",
+    color: "#FF7845",
+    color2: "#BF3018",
+    glow: "rgba(210,62,28,.52)",
+    glow2: "rgba(255,140,60,.18)",
     intro: "这里住着动物、植物，还有风雨雷电。准备好去认识我们的地球伙伴了吗？",
     stations: [
       {
@@ -57,9 +58,10 @@ const PLANETS = [
     name: "历史星球",
     tag: "穿越时光机",
     emoji: "🏛",
-    color: "#f5b544",
-    color2: "#b6791b",
-    glow: "rgba(245,181,68,.55)",
+    color: "#8272EE",
+    color2: "#3225AC",
+    glow: "rgba(72,52,200,.52)",
+    glow2: "rgba(130,90,255,.18)",
     intro: "登上时光机，去看看几千年前的人们怎么生活、发明了什么改变世界的东西。",
     stations: [
       {
@@ -104,9 +106,10 @@ const PLANETS = [
     name: "社会星球",
     tag: "我们的大家庭",
     emoji: "🏙",
-    color: "#4bc8ff",
-    color2: "#1f74b6",
-    glow: "rgba(75,200,255,.55)",
+    color: "#38B8D8",
+    color2: "#0E5888",
+    glow: "rgba(22,110,175,.52)",
+    glow2: "rgba(55,180,220,.18)",
     intro: "城市是怎么运转的？大人们都在做什么工作？一起了解我们生活的社会吧。",
     stations: [
       {
@@ -151,9 +154,10 @@ const PLANETS = [
     name: "人文星球",
     tag: "美与故事之地",
     emoji: "🎨",
-    color: "#c58bff",
-    color2: "#7d43c0",
-    glow: "rgba(197,139,255,.55)",
+    color: "#F04882",
+    color2: "#9C184A",
+    glow: "rgba(202,32,82,.52)",
+    glow2: "rgba(255,80,140,.18)",
     intro: "音乐、绘画、诗歌和节日——这里收藏着人类创造的所有美好与浪漫。",
     stations: [
       {

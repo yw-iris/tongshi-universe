@@ -1,18 +1,21 @@
-/* 隧道穿越 — 同心圆旋涡收缩（催眠隧道 + 透视感）
- * 参考：蓝白同心圆向中心急速收缩的视觉冲击效果
+/* 隧道穿越 — 波浪有机同心椭圆环（参考 r_44：奶油色/深蓝交替波浪圆环）
+ *  奶油米白背景 + 深蓝/米白交替波浪环从中心向外扩张，营造飞入隧道的感觉
  */
 const Tunnel = (function () {
-  const layer  = document.getElementById("tunnelLayer");
-  const canvas = document.getElementById("tunnelCanvas");
-  const ctx    = canvas.getContext("2d");
-  const titleEl= document.getElementById("tunnelTitle");
-  const skipBtn= document.getElementById("skipTunnel");
+  const layer   = document.getElementById("tunnelLayer");
+  const canvas  = document.getElementById("tunnelCanvas");
+  const ctx     = canvas.getContext("2d");
+  const titleEl = document.getElementById("tunnelTitle");
+  const skipBtn = document.getElementById("skipTunnel");
 
   const DURATION = 2800;
   const reduce   = window.matchMedia("(prefers-reduced-motion:reduce)").matches;
   let w, h, cx, cy, dpr;
   let raf = null, running = false, startT = 0, onDone = null;
-  let theme = { c1: "#1a3a8c", c2: "#e8e0c4", accent: "#f5c842" };
+
+  /* ── 颜色主题（固定奶油/深蓝，参考 r_44） ── */
+  const CREAM = "#F0E8D0";
+  const BLUE  = "#1212A8";
 
   function resize() {
     dpr = Math.min(devicePixelRatio || 1, 2);
@@ -23,7 +26,25 @@ const Tunnel = (function () {
     cx = w / 2; cy = h / 2;
   }
 
-  function lerp(a, b, t) { return a + (b - a) * t; }
+  /* ── 画一个有机波浪椭圆（多谐波叠加，模拟手绘/有机感） ── */
+  function wavyRing(cx, cy, baseRx, baseRy, wobble, seed) {
+    const STEPS = 180;
+    ctx.beginPath();
+    for (let i = 0; i <= STEPS; i++) {
+      const t = (i / STEPS) * Math.PI * 2;
+      /* 三个谐波叠加产生不规则有机感，频率 3/5/7 各有相位偏移 */
+      const wave = (
+        Math.sin(3 * t + seed)             * 0.50 +
+        Math.sin(5 * t + seed * 1.43)      * 0.30 +
+        Math.sin(7 * t + seed * 0.77)      * 0.20
+      );
+      const scale = 1 + wobble * wave;
+      const x = cx + baseRx * scale * Math.cos(t);
+      const y = cy + baseRy * scale * Math.sin(t);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+  }
 
   function frame(t) {
     if (!running) return;
@@ -31,82 +52,62 @@ const Tunnel = (function () {
     const elapsed = t - startT;
     const p = Math.min(elapsed / DURATION, 1);
 
-    // 加速曲线：前半段慢，后半段极快
-    const speed = 0.018 + Math.pow(p, 1.8) * 0.22;
+    /* 加速曲线：前段慢、后段急速加速，最后冲入 */
+    const speed = 0.009 + Math.pow(p, 2.4) * 0.22;
+    const phase = (elapsed * speed * 0.34) % 1;
 
-    // 旋转角度：略微旋转增加动感
-    const rot = elapsed * 0.0006;
+    /* 最大椭圆半径——宽椭圆（参考 r_44 宽高比约 2.4:1） */
+    const maxRx = Math.max(w, h) * 1.35;
+    const maxRy = maxRx * 0.55;
+    const RINGS = 24;
 
-    // 最大半径 = 屏幕对角线
-    const maxR = Math.sqrt(cx * cx + cy * cy) * 1.15;
-
-    ctx.fillStyle = theme.c1;
+    /* 奶油底色 */
+    ctx.fillStyle = CREAM;
     ctx.fillRect(0, 0, w, h);
 
-    // 同心圆条纹数量（越接近终点越多，越密）
-    const ringCount = 28 + Math.floor(p * 22);
-    // 相位偏移：随时间向内收缩
-    const phase = (elapsed * speed * 0.28) % 1;
+    /* 从最外层到最内层绘制，内层覆盖外层 */
+    for (let i = RINGS; i >= 0; i--) {
+      const frac = ((i / RINGS) + phase) % 1;
+      /* 透视压缩：越靠中心环间距越小 */
+      const pf = Math.pow(frac, 1.35);
 
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(rot);
+      const rx = Math.max(2, pf * maxRx);
+      const ry = Math.max(1, pf * maxRy);
 
-    for (let i = ringCount; i >= 0; i--) {
-      // 环的归一化位置 0~1，0 = 中心，1 = 外边
-      const frac = ((i / ringCount) + phase) % 1;
+      /* 偶数圈=深蓝，奇数圈=奶油（或反相，取决于 phase 偏移） */
+      const isBlue = (i % 2 === 0);
+      const col    = isBlue ? BLUE : CREAM;
 
-      // 透视映射：远处环间距小，近处大（模拟透视隧道）
-      const perspFrac = Math.pow(frac, 1.4);
-      const r = perspFrac * maxR;
+      /* 越外层波浪越大（外大内小，模拟透视） */
+      const wobble = pf * 0.11;
+      /* 黄金比 seed 保证每圈波浪形状不同但稳定 */
+      const seed   = (i * 1.6180339) % (Math.PI * 2);
 
-      // 半径必须 > 0，否则 ctx.ellipse 抛 DOMException
-      if (r < 1) continue;
-
-      // 颜色交替：深蓝 / 米白/金
-      const isLight = i % 2 === 0;
-      let fillColor;
-      if (isLight) {
-        // 米白 + 靠近中心时染上主题色
-        const tint = Math.max(0, 1 - frac * 2.5);
-        fillColor = lerpColor(theme.c2, theme.accent, tint);
-      } else {
-        // 深蓝底色
-        fillColor = theme.c1;
-      }
-
-      ctx.beginPath();
-      ctx.fillStyle = fillColor;
-      // 画扭曲椭圆（宽比高 = 1.45 模拟透视椭圆）
-      ctx.ellipse(0, 0, Math.max(1, r * 1.45), Math.max(1, r), 0, 0, Math.PI * 2);
+      wavyRing(cx, cy, rx, ry, wobble, seed);
+      ctx.fillStyle = col;
       ctx.fill();
     }
 
-    // 中心强光 burst
-    const burstAlpha = p < 0.6 ? 0 : (p - 0.6) / 0.4 * 0.7;
-    const burstG = ctx.createRadialGradient(0, 0, 0, 0, 0, maxR * 0.3);
-    burstG.addColorStop(0, `rgba(255,240,200,${burstAlpha})`);
-    burstG.addColorStop(1, "transparent");
-    ctx.fillStyle = burstG; ctx.beginPath();
-    ctx.arc(0, 0, maxR * 0.3, 0, Math.PI * 2); ctx.fill();
+    /* 中心暖光晕（消散点） */
+    const gr = Math.min(w, h) * 0.22;
+    const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, gr);
+    grd.addColorStop(0,   "rgba(255,250,228,0.98)");
+    grd.addColorStop(0.4, "rgba(245,238,202,0.70)");
+    grd.addColorStop(1,   "transparent");
+    ctx.fillStyle = grd;
+    ctx.beginPath();
+    ctx.arc(cx, cy, gr, 0, Math.PI * 2);
+    ctx.fill();
 
-    ctx.restore();
-
-    // 抵达：全白闪现
+    /* 结束：全屏奶油闪白 */
     if (p >= 1) {
-      const flashA = Math.min(1, (elapsed - DURATION) / 200);
-      ctx.fillStyle = `rgba(255,248,220,${flashA})`;
+      const fa = Math.min(1, (elapsed - DURATION) / 200);
+      ctx.fillStyle = `rgba(245,240,218,${fa})`;
       ctx.fillRect(0, 0, w, h);
       if (elapsed > DURATION + 220) return finish();
     }
 
     raf = requestAnimationFrame(frame);
-  }
-
-  function lerpColor(hex1, hex2, t) {
-    const h2r = h => [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
-    const [r1,g1,b1] = h2r(hex1), [r2,g2,b2] = h2r(hex2);
-    return `rgb(${Math.round(lerp(r1,r2,t))},${Math.round(lerp(g1,g2,t))},${Math.round(lerp(b1,b2,t))})`;
   }
 
   function finish() {
@@ -121,26 +122,16 @@ const Tunnel = (function () {
 
   function play(planet, cb) {
     onDone = cb;
-    // 每颗星球有自己的隧道配色
-    const palettes = {
-      nature:     { c1: "#0a2e1a", c2: "#e8f5e0", accent: "#3ddc97" },
-      history:    { c1: "#2e1a04", c2: "#f5e8c4", accent: "#f5b544" },
-      society:    { c1: "#041a2e", c2: "#d0eeff", accent: "#4bc8ff" },
-      humanities: { c1: "#1a0a2e", c2: "#ecdcff", accent: "#c58bff" },
-    };
-    theme = palettes[planet.id] || { c1: "#0a122e", c2: "#e8e4d8", accent: "#f5c842" };
-
     titleEl.textContent = "前往 " + planet.name;
-    titleEl.style.color  = planet.color;
     layer.hidden = false;
     resize();
 
     if (reduce) {
-      ctx.fillStyle = theme.c1; ctx.fillRect(0,0,w,h);
+      ctx.fillStyle = CREAM; ctx.fillRect(0, 0, w, h);
       running = true; setTimeout(finish, 600); return;
     }
 
-    ctx.fillStyle = theme.c1; ctx.fillRect(0,0,w,h);
+    ctx.fillStyle = CREAM; ctx.fillRect(0, 0, w, h);
     running = true; startT = 0;
     raf = requestAnimationFrame(frame);
   }
