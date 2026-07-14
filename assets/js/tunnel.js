@@ -60,6 +60,9 @@ const Tunnel = (function () {
       const perspFrac = Math.pow(frac, 1.4);
       const r = perspFrac * maxR;
 
+      // 半径必须 > 0，否则 ctx.ellipse 抛 DOMException
+      if (r < 1) continue;
+
       // 颜色交替：深蓝 / 米白/金
       const isLight = i % 2 === 0;
       let fillColor;
@@ -75,7 +78,7 @@ const Tunnel = (function () {
       ctx.beginPath();
       ctx.fillStyle = fillColor;
       // 画扭曲椭圆（宽比高 = 1.45 模拟透视椭圆）
-      ctx.ellipse(0, 0, r * 1.45, r, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, Math.max(1, r * 1.45), Math.max(1, r), 0, 0, Math.PI * 2);
       ctx.fill();
     }
 

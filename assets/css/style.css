@@ -60,9 +60,13 @@ body {
 
 /* ─── 星图（水平拖动轨道） ─── */
 .galaxy-wrap {
-  position: relative; margin-top: 36px; overflow: hidden;
+  position: relative; margin-top: 36px;
+  overflow-x: auto; overflow-y: visible;
+  /* 隐藏滚动条但保留滚动能力 */
+  scrollbar-width: none;
   user-select: none; cursor: grab;
 }
+.galaxy-wrap::-webkit-scrollbar { display: none; }
 .galaxy-wrap:active { cursor: grabbing; }
 .galaxy-track {
   display: flex; align-items: center; gap: 0;
