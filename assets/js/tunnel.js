@@ -128,16 +128,15 @@ const Tunnel = (function () {
   }
 
   function finish() {
-    if (!running) return;
-    running = false;
-    if (raf) cancelAnimationFrame(raf);
-    layer.hidden = true;
+    running = false;                          // 无论什么状态都强制关闭
+    if (raf) { cancelAnimationFrame(raf); raf = null; }
+    if (safetyTimer) { clearTimeout(safetyTimer); safetyTimer = null; }
+    layer.hidden = true;                      // 必须隐藏遮罩
     ctx.clearRect(0, 0, w, h);
     const cb = onDone; onDone = null; startT = 0;
     if (cb) cb();
   }
 
-  /* 4 秒硬超时：无论如何都能进入星球 */
   let safetyTimer = null;
   function play(planet, cb) {
     onDone = cb;
@@ -154,18 +153,17 @@ const Tunnel = (function () {
       return;
     }
 
+    /* 4 秒硬超时：无论动画状态，强制进入星球 */
     if (safetyTimer) clearTimeout(safetyTimer);
-    safetyTimer = setTimeout(() => {
-      if (running) finish();
-    }, 4200);
+    safetyTimer = setTimeout(finish, 4200);
 
     ctx.fillStyle = theme.bg; ctx.fillRect(0, 0, w, h);
     running = true; startT = 0;
     raf = requestAnimationFrame(frame);
   }
 
-  /* 点击隧道层任意位置可跳过 */
-  layer.addEventListener("click", () => { if (running) finish(); });
+  /* 点击隧道层任意位置强制关闭（不判断 running） */
+  layer.addEventListener("click", finish);
   skipBtn.addEventListener("click", e => { e.stopPropagation(); finish(); });
   window.addEventListener("resize", () => { if (running) resize(); });
   return { play };
